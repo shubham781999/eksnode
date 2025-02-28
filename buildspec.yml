@@ -6,7 +6,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 222634367630.dkr.ecr.ap-south-1.amazonaws.com
       - echo Configuring kubectl...
-      - aws eks update-kubeconfig --region ap-south-1 --name <your-cluster-name>
+      - aws eks update-kubeconfig --region ap-south-1 --name noddddde-cluster
       - kubectl get nodes
 
   build:
