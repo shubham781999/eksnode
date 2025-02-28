@@ -5,15 +5,23 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 222634367630.dkr.ecr.ap-south-1.amazonaws.com
+      - echo Configuring kubectl...
+      - aws eks update-kubeconfig --region ap-south-1 --name <your-cluster-name>
+      - kubectl get nodes
+
   build:
     commands:
       - echo Building Docker image...
       - docker build -t node-app .
       - docker tag node-app:latest 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest
+
   post_build:
     commands:
       - echo Pushing Docker image to Amazon ECR...
       - docker push 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest
+      - echo Verifying Kubernetes connectivity...
+      - kubectl cluster-info
+      - kubectl get pods --namespace=default
       - echo Updating Kubernetes deployment...
       - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest --namespace=default
 
