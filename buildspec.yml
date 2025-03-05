@@ -16,13 +16,11 @@ phases:
       - docker build -t node-app .
       - docker tag node-app:latest 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER
 
-  post_build:
-    commands:
-      - echo Pushing Docker image to Amazon ECR...
-      - docker push 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER
-      - echo Verifying Kubernetes connectivity...
-      - kubectl cluster-info || echo "Failed to get cluster info, continuing..."
-      - kubectl get pods --namespace=default || echo "Failed to get pods, continuing..."
-      - echo Updating Kubernetes deployment...
-      - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER --namespace=default
-      - kubectl rollout restart deployment node-app --namespace=default
+post_build:
+  commands:
+    - echo Pushing Docker image to Amazon ECR...
+    - docker push 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER
+    - echo Applying deployment to Kubernetes...
+    - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER --namespace=default
+    - echo Verifying deployment...
+    - kubectl rollout status deployment/node-app --namespace=default
