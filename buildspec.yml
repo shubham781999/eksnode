@@ -8,20 +8,21 @@ phases:
       - echo Configuring kubectl...
       - aws eks update-kubeconfig --region ap-south-1 --name nodde-cluster
       - echo Checking Kubernetes nodes...
-      - kubectl get nodes || echo "Failed to get nodes, continuing..."  
+      - kubectl get nodes || echo "Failed to get nodes, continuing..."
 
   build:
     commands:
       - echo Building Docker image...
       - docker build -t node-app .
-      - docker tag node-app:latest 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest
+      - docker tag node-app:latest 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER
 
   post_build:
     commands:
       - echo Pushing Docker image to Amazon ECR...
-      - docker push 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest
+      - docker push 222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER
       - echo Verifying Kubernetes connectivity...
       - kubectl cluster-info || echo "Failed to get cluster info, continuing..."
       - kubectl get pods --namespace=default || echo "Failed to get pods, continuing..."
       - echo Updating Kubernetes deployment...
-      - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:latest --namespace=default
+      - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER --namespace=default
+      - kubectl rollout restart deployment node-app --namespace=default
