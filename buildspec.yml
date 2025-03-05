@@ -1,3 +1,4 @@
+
 version: 0.2
 
 phases:
@@ -26,3 +27,4 @@ phases:
       - echo Updating Kubernetes deployment...
       - kubectl set image deployment/node-app node-app=222634367630.dkr.ecr.ap-south-1.amazonaws.com/node-app:$CODEBUILD_BUILD_NUMBER --namespace=default
       - kubectl rollout restart deployment node-app --namespace=default
+
